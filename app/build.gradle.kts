@@ -20,7 +20,7 @@ dependencies {
     testImplementation(libs.junit)
 
     // This dependency is used by the application.
-    implementation(libs.guava)
+    // implementation(libs.guava)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -32,5 +32,5 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.App"
+    mainClass = "mg.dirk.vote_system.App"
 }
