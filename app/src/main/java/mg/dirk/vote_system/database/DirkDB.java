@@ -49,6 +49,19 @@ public class DirkDB {
         this.setTables(new HashMap<Class<? extends Object>, List<Object>>());
     }
 
+    public DirkDB(Class<? extends Object>... classes) {
+        this();
+        for (Class<? extends Object> class1 : classes) {
+            try {
+                this.importClass(class1);
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException | UndefinedTableAnnotationException
+                    | UndefinedPrimaryKeyException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void importClass(Class<? extends Object> class1) throws UndefinedTableAnnotationException,
             UndefinedPrimaryKeyException, IOException, NoSuchMethodException, SecurityException, InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
