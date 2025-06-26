@@ -234,4 +234,19 @@ public class DirkDB {
     public void clear() {
         this.tables.clear();
     }
+
+    public <T extends Object> T get(Class<T> class1, Object key) throws UndefinedTableAnnotationException,
+            UndefinedPrimaryKeyException, IllegalAccessException, InvocationTargetException {
+        DbUtils.isValidTable(class1);
+        List<T> data = (List<T>) this.getTables().get(class1);
+        Method primaryKey = DbUtils.getPrimaryKeyMethod(class1);
+        if (data != null) {
+            for (T t : data) {
+                if (primaryKey.invoke(t).equals(key)) {
+                    return t;
+                }
+            }
+        }
+        return null;
+    }
 }
