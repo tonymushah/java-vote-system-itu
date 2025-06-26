@@ -5,10 +5,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ReflectUtils {
+
+    public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+
     public static String makeFirstUpperCase(String input) {
         char first = Character.toUpperCase(input.charAt(0));
         return String.format("%s%s", first, input.substring(1, input.length()));
@@ -88,12 +94,13 @@ public class ReflectUtils {
         Field[] fields = getFieldsWithExcludedAnnotations(obj_class, excludedAnnotations);
 
         for (Field field : fields) {
-            list.add(getFieldGetter(obj_class, field).invoke(object));
+            list.add(formatToString(getFieldGetter(obj_class, field).invoke(object)));
         }
         return list.toArray(new Object[list.size()]);
     }
 
-    public static Object parseString(String value, Class<? extends Object> target) throws InvalidClassException {
+    public static Object parseString(String value, Class<? extends Object> target)
+            throws InvalidClassException, ParseException {
         if (target == String.class) {
             return value;
         } else if (target == Integer.class || target == int.class) {
@@ -108,8 +115,18 @@ public class ReflectUtils {
             return Boolean.parseBoolean(value);
         } else if (target == Long.class || target == long.class) {
             return Long.parseLong(value);
+        } else if (target == Date.class) {
+            return dateFormatter.parse(value);
         } else {
             throw new InvalidClassException(String.format("Cannot parse a string to %s", target.getName()));
+        }
+    }
+
+    public static String formatToString(Object target) {
+        if (target instanceof Date) {
+            return dateFormatter.format(target);
+        } else {
+            return String.valueOf(target);
         }
     }
 }

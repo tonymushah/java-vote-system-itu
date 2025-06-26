@@ -15,6 +15,7 @@ import java.io.InvalidClassException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +56,7 @@ public class DirkDB {
                 this.importClass(class1);
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException | UndefinedTableAnnotationException
-                    | UndefinedPrimaryKeyException | IOException e) {
+                    | UndefinedPrimaryKeyException | IOException | ParseException e) {
                 e.printStackTrace();
             }
         }
@@ -63,7 +64,7 @@ public class DirkDB {
 
     public void importClass(Class<? extends Object> class1) throws UndefinedTableAnnotationException,
             UndefinedPrimaryKeyException, IOException, NoSuchMethodException, SecurityException, InstantiationException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParseException {
         DbUtils.isValidTable(class1);
         Table table = class1.getAnnotation(Table.class);
         CSVFormat format = CSVFormat.DEFAULT.builder().setDelimiter(";").setHeader().setIgnoreEmptyLines(true).get();
@@ -95,7 +96,7 @@ public class DirkDB {
 
     public void syncFromFiles() throws NoSuchMethodException, SecurityException, InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException {
+            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException, ParseException {
         List<Class<? extends Object>> tables_set = this.tables.keySet().stream().collect(Collectors.toList());
         for (Class<? extends Object> table_class : tables_set) {
             this.importClass(table_class);
