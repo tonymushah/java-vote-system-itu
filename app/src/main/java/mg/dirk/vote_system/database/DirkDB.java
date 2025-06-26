@@ -16,7 +16,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,8 +66,11 @@ public class DirkDB {
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         DbUtils.isValidTable(class1);
         Table table = class1.getAnnotation(Table.class);
-        CSVFormat format = CSVFormat.DEFAULT.builder().setDelimiter(";").setIgnoreEmptyLines(true).get();
+        CSVFormat format = CSVFormat.DEFAULT.builder().setDelimiter(";").setHeader().setIgnoreEmptyLines(true).get();
         File file = new File(table.file());
+        if (!file.exists()) {
+            file.createNewFile();
+        }
 
         try (FileReader file_reader = new FileReader(file);
                 BufferedReader reader = new BufferedReader(file_reader);
@@ -76,7 +78,7 @@ public class DirkDB {
             ArrayList<Object> rows = new ArrayList<>();
             for (CSVRecord csvRecord : parser) {
                 Object row = class1.getConstructor().newInstance();
-                for (Field field : class1.getFields()) {
+                for (Field field : class1.getDeclaredFields()) {
                     if (field.isAnnotationPresent(SkipDeserialization.class)) {
                         continue;
                     }
@@ -105,8 +107,9 @@ public class DirkDB {
             InvocationTargetException, NoSuchMethodException, SecurityException {
         DbUtils.isValidTable(class1);
         Table table = class1.getAnnotation(Table.class);
-        CSVFormat format = CSVFormat.DEFAULT.builder().setHeader(getFieldNames(class1, SkipSerialization.class))
-                .setDelimiter(";").setIgnoreEmptyLines(true).get();
+        CSVFormat format = CSVFormat.DEFAULT.builder()
+                .setHeader(getFieldNames(class1, SkipSerialization.class))
+                .setDelimiter(";").get();
         File file = new File(table.file());
         if (!file.exists()) {
             file.createNewFile();
@@ -133,6 +136,23 @@ public class DirkDB {
         this.insert(to_insert, true);
     }
 
+    public void insertBatch(Object... objects)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException,
+            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException {
+        for (Object object : objects) {
+            this.insert(object, false);
+        }
+        this.saveToFile();
+    }
+
+    public void insertBatchNoSave(Object... objects)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException,
+            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException {
+        for (Object object : objects) {
+            this.insert(object, false);
+        }
+    }
+
     public void insert(Object to_insert, boolean save)
             throws UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, SecurityException, IOException {
@@ -142,7 +162,9 @@ public class DirkDB {
             maybeRow.add(to_insert);
         } else {
             DbUtils.isValidTable(to_insert_class);
-            this.tables.put(to_insert_class, Arrays.asList(to_insert));
+            List<Object> default_ = new ArrayList<>();
+            default_.add(to_insert);
+            this.tables.put(to_insert_class, default_);
         }
         if (save) {
             this.saveToFile(to_insert_class);
@@ -169,9 +191,10 @@ public class DirkDB {
                     String.format("The target class and the main object class is not equals (%s != %s)",
                             foreignKeyInfo.getTargetClass().getName(), mainObject.getClass().getName()));
         }
-        List<U> rows = (List<U>) this.getTables().get(foreignKeyInfo.getTargetClass());
+        List<U> rows = (List<U>) this.getTables().get(foreignKeyInfo.getMainClass());
         for (U u : rows) {
             Object refData = foreignKeyInfo.getForeignKeyTargetClassMethod().invoke(mainObject);
+            assert u.getClass() == foreignKeyInfo.getMainClass();
             Object innerData = foreignKeyInfo.getForeignKeyMainClassMethod().invoke(u);
             if (refData.equals(innerData)) {
                 toReturns.add(u);
@@ -186,7 +209,7 @@ public class DirkDB {
             InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException,
             ReferredValueNotFoundException {
         ForeignKeyInfo foreignKeyInfo = new ForeignKeyInfo(mainObject.getClass(), foreignKey);
-        if (foreignKeyInfo.getTargetClass() != targetClass.getClass()) {
+        if (foreignKeyInfo.getTargetClass() != targetClass) {
             throw new InvalidClassException(String.format(
                     "The target class and the main object foreign key target class is not equals (%s != %s)",
                     foreignKeyInfo.getTargetClass().getName(), targetClass.getName()));
@@ -206,5 +229,9 @@ public class DirkDB {
         if (rows != null) {
             rows.clear();
         }
+    }
+
+    public void clear() {
+        this.tables.clear();
     }
 }

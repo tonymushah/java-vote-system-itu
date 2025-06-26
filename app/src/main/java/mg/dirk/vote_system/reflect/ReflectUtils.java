@@ -54,7 +54,7 @@ public class ReflectUtils {
     public static Field[] getFieldsWithExcludedAnnotations(Class<? extends Object> targetClass,
             Class<? extends Annotation>... excludedAnnotations) {
         List<Field> names = new ArrayList<>();
-        for (Field field : targetClass.getFields()) {
+        for (Field field : targetClass.getDeclaredFields()) {
             if (isAnnotationsPresent(field, excludedAnnotations)) {
                 continue;
             }
@@ -86,8 +86,9 @@ public class ReflectUtils {
         List<Object> list = new ArrayList<>();
         Class<? extends Object> obj_class = object.getClass();
         Field[] fields = getFieldsWithExcludedAnnotations(obj_class, excludedAnnotations);
+
         for (Field field : fields) {
-            list.add(getFieldGetter(obj_class, field).invoke(obj_class));
+            list.add(getFieldGetter(obj_class, field).invoke(object));
         }
         return list.toArray(new Object[list.size()]);
     }
