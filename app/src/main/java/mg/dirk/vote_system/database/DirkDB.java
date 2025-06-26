@@ -153,13 +153,33 @@ public class DirkDB {
         }
     }
 
+    private int get_to_insert_index(Object to_insert) throws NullPointerException, UndefinedPrimaryKeyException,
+            UndefinedTableAnnotationException, IllegalAccessException, InvocationTargetException {
+        Class<? extends Object> to_insert_class = to_insert.getClass();
+        List<Object> maybeRow = this.tables.get(to_insert_class);
+        Method primaryKey = DbUtils.getPrimaryKeyMethod(to_insert_class);
+        if (maybeRow != null) {
+            for (int i = 0; i < maybeRow.size(); i++) {
+                if (primaryKey.invoke(to_insert).equals(maybeRow.get(i))) {
+                    return i;
+                }
+            }
+        }
+        throw new NullPointerException(String.format("No table inserted for %s", to_insert_class.getName()));
+    }
+
     public void insert(Object to_insert, boolean save)
             throws UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, SecurityException, IOException {
         Class<? extends Object> to_insert_class = to_insert.getClass();
         List<Object> maybeRow = this.tables.get(to_insert_class);
         if (maybeRow != null) {
-            maybeRow.add(to_insert);
+            try {
+                int index = get_to_insert_index(to_insert_class);
+                maybeRow.set(index, to_insert);
+            } catch (NullPointerException e) {
+                maybeRow.add(to_insert);
+            }
         } else {
             DbUtils.isValidTable(to_insert_class);
             List<Object> default_ = new ArrayList<>();
