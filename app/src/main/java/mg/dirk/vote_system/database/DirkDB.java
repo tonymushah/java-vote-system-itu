@@ -1,0 +1,197 @@
+package mg.dirk.vote_system.database;
+
+import static mg.dirk.vote_system.reflect.ReflectUtils.getFieldSetter;
+import static mg.dirk.vote_system.reflect.ReflectUtils.getFieldValues;
+import static mg.dirk.vote_system.reflect.ReflectUtils.getFieldNames;
+import static mg.dirk.vote_system.reflect.ReflectUtils.parseString;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.csv.*;
+
+import mg.dirk.vote_system.database.annotations.SkipDeserialization;
+import mg.dirk.vote_system.database.annotations.SkipSerialization;
+import mg.dirk.vote_system.database.annotations.Table;
+import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.NoRowsException;
+import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
+import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
+import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
+import mg.dirk.vote_system.database.utils.DbUtils;
+import mg.dirk.vote_system.database.utils.ForeignKeyInfo;
+
+public class DirkDB {
+    private HashMap<Class<? extends Object>, List<Object>> tables;
+
+    public HashMap<Class<? extends Object>, List<Object>> getTables() {
+        return tables;
+    }
+
+    public void setTables(HashMap<Class<? extends Object>, List<Object>> tables) {
+        this.tables = tables;
+    }
+
+    public DirkDB() {
+        this.setTables(new HashMap<Class<? extends Object>, List<Object>>());
+    }
+
+    public void importClass(Class<? extends Object> class1) throws UndefinedTableAnnotationException,
+            UndefinedPrimaryKeyException, IOException, NoSuchMethodException, SecurityException, InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        DbUtils.isValidTable(class1);
+        Table table = class1.getAnnotation(Table.class);
+        CSVFormat format = CSVFormat.DEFAULT.builder().setDelimiter(";").setIgnoreEmptyLines(true).get();
+        File file = new File(table.file());
+
+        try (FileReader file_reader = new FileReader(file);
+                BufferedReader reader = new BufferedReader(file_reader);
+                CSVParser parser = format.parse(reader);) {
+            ArrayList<Object> rows = new ArrayList<>();
+            for (CSVRecord csvRecord : parser) {
+                Object row = class1.getConstructor().newInstance();
+                for (Field field : class1.getFields()) {
+                    if (field.isAnnotationPresent(SkipDeserialization.class)) {
+                        continue;
+                    }
+                    Method setter = getFieldSetter(class1, field);
+
+                    setter.invoke(row, parseString(csvRecord.get(field.getName()), field.getType()));
+                }
+                rows.add(row);
+            }
+            this.tables.put(class1, rows);
+        }
+
+    }
+
+    public void syncFromFiles() throws NoSuchMethodException, SecurityException, InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException {
+        List<Class<? extends Object>> tables_set = this.tables.keySet().stream().collect(Collectors.toList());
+        for (Class<? extends Object> table_class : tables_set) {
+            this.importClass(table_class);
+        }
+    }
+
+    public void saveToFile(Class<? extends Object> class1)
+            throws UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException, IllegalAccessException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
+        DbUtils.isValidTable(class1);
+        Table table = class1.getAnnotation(Table.class);
+        CSVFormat format = CSVFormat.DEFAULT.builder().setHeader(getFieldNames(class1, SkipSerialization.class))
+                .setDelimiter(";").setIgnoreEmptyLines(true).get();
+        File file = new File(table.file());
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        try (FileWriter writer = new FileWriter(file);
+                BufferedWriter buf_writer = new BufferedWriter(writer);
+                CSVPrinter printer = new CSVPrinter(buf_writer, format);) {
+            for (Object record : this.tables.get(class1)) {
+                printer.printRecord(getFieldValues(record, SkipSerialization.class));
+            }
+            printer.flush();
+        }
+    }
+
+    public void saveToFile() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+            SecurityException, UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException {
+        for (Class<? extends Object> table_class : this.tables.keySet()) {
+            this.saveToFile(table_class);
+        }
+    }
+
+    public void insert(Object to_insert) throws UndefinedTableAnnotationException, UndefinedPrimaryKeyException,
+            IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException, IOException {
+        this.insert(to_insert, true);
+    }
+
+    public void insert(Object to_insert, boolean save)
+            throws UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IllegalAccessException,
+            InvocationTargetException, NoSuchMethodException, SecurityException, IOException {
+        Class<? extends Object> to_insert_class = to_insert.getClass();
+        List<Object> maybeRow = this.tables.get(to_insert_class);
+        if (maybeRow != null) {
+            maybeRow.add(to_insert);
+        } else {
+            DbUtils.isValidTable(to_insert_class);
+            this.tables.put(to_insert_class, Arrays.asList(to_insert));
+        }
+        if (save) {
+            this.saveToFile(to_insert_class);
+        }
+    }
+
+    public <T extends Object> List<T> select(Class<T> to_select_class) throws NoRowsException {
+        List<T> list = (List<T>) this.getTables().get(to_select_class);
+        if (list == null) {
+            throw new NoRowsException(to_select_class);
+        } else {
+            return list;
+        }
+    }
+
+    public <T extends Object, U extends Object> List<U> get_relationships(T mainObject, Class<U> targetClass,
+            String foreignKey)
+            throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
+            InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException {
+        List<U> toReturns = new ArrayList<U>();
+        ForeignKeyInfo foreignKeyInfo = new ForeignKeyInfo(targetClass, foreignKey);
+        if (foreignKeyInfo.getTargetClass() != mainObject.getClass()) {
+            throw new InvalidClassException(
+                    String.format("The target class and the main object class is not equals (%s != %s)",
+                            foreignKeyInfo.getTargetClass().getName(), mainObject.getClass().getName()));
+        }
+        List<U> rows = (List<U>) this.getTables().get(foreignKeyInfo.getTargetClass());
+        for (U u : rows) {
+            Object refData = foreignKeyInfo.getForeignKeyTargetClassMethod().invoke(mainObject);
+            Object innerData = foreignKeyInfo.getForeignKeyMainClassMethod().invoke(u);
+            if (refData.equals(innerData)) {
+                toReturns.add(u);
+            }
+        }
+        return toReturns;
+    }
+
+    public <T extends Object, U extends Object> U get_reference(T mainObject, Class<U> targetClass,
+            String foreignKey)
+            throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
+            InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException,
+            ReferredValueNotFoundException {
+        ForeignKeyInfo foreignKeyInfo = new ForeignKeyInfo(mainObject.getClass(), foreignKey);
+        if (foreignKeyInfo.getTargetClass() != targetClass.getClass()) {
+            throw new InvalidClassException(String.format(
+                    "The target class and the main object foreign key target class is not equals (%s != %s)",
+                    foreignKeyInfo.getTargetClass().getName(), targetClass.getName()));
+        }
+        for (Object maybeRefObject : tables.get(targetClass)) {
+            Object refData = foreignKeyInfo.getForeignKeyTargetClassMethod().invoke(maybeRefObject);
+            Object innerData = foreignKeyInfo.getForeignKeyMainClassMethod().invoke(mainObject);
+            if (refData.equals(innerData)) {
+                return (U) maybeRefObject;
+            }
+        }
+        throw new ReferredValueNotFoundException(foreignKeyInfo);
+    }
+
+    public void truncate(Class<? extends Object> targetClass) {
+        List<Object> rows = this.tables.get(targetClass);
+        if (rows != null) {
+            rows.clear();
+        }
+    }
+}

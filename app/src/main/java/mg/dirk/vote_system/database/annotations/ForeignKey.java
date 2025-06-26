@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 public @interface ForeignKey {
     Class<? extends Object> targetClass();
 
-    String paramater();
+    String getter() default "";
 }
