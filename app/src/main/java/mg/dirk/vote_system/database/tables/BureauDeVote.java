@@ -4,7 +4,7 @@ import mg.dirk.vote_system.database.annotations.ForeignKey;
 import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
 
-@Table(file = "data/bureau-de-vote")
+@Table(file = "data/bureau-de-vote.csv")
 public class BureauDeVote {
     private int id;
     private String nom;
