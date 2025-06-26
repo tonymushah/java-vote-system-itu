@@ -1,8 +1,15 @@
 package mg.dirk.vote_system.database.tables;
 
+import java.io.InvalidClassException;
+import java.lang.reflect.InvocationTargetException;
+
+import mg.dirk.vote_system.database.DirkDB;
 import mg.dirk.vote_system.database.annotations.ForeignKey;
 import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
+import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
+import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 
 @Table(file = "data/depute.csv")
 public class Depute {
@@ -57,4 +64,13 @@ public class Depute {
         this.setNom(nom);
     }
 
+    public int getVotes(DirkDB db)
+            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
+        int votes = 0;
+        for (Vote vote : db.get_relationships(this, Vote.class, "getDepute")) {
+            votes = votes + vote.getNb_vote();
+        }
+        return votes;
+    }
 }
