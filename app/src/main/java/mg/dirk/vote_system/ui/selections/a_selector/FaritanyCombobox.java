@@ -1,5 +1,7 @@
 package mg.dirk.vote_system.ui.selections.a_selector;
 
+import java.awt.Dimension;
+
 import javax.swing.JComboBox;
 
 import mg.dirk.vote_system.database.DirkDB;
@@ -58,7 +60,7 @@ public class FaritanyCombobox extends JComboBox<Faritany> {
         this.setFaritanyComboboxListener(new FaritanyComboboxListener(selector));
         this.setListener();
         this.setAllItems();
-        this.setSelectedItem(selector);
+        this.setPreferredSize(new Dimension(150, 24));
     }
 
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.List;
 
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class DBTest {
     @Test
     public void simpleTest() throws NoSuchMethodException, SecurityException, InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException {
+            UndefinedTableAnnotationException, UndefinedPrimaryKeyException, IOException, ParseException {
         this.db.importClass(TestTable.class);
     }
 

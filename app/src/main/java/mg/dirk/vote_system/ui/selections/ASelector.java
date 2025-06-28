@@ -89,22 +89,22 @@ public class ASelector extends JPanel {
 
         // Faritany panel
         JPanel faritanyPanel = new JPanel();
-        faritanyPanel.setLayout(new BoxLayout(faritanyPanel, BoxLayout.X_AXIS));
+        // faritanyPanel.setLayout(new BoxLayout(faritanyPanel, BoxLayout.X_AXIS));
         faritanyPanel.add(new JLabel("Faritany: "));
         faritanyPanel.add(this.getFaritanyCombobox());
         this.add(faritanyPanel);
 
         // Faritra panel
         JPanel faritraPanel = new JPanel();
-        faritraPanel.setLayout(new BoxLayout(faritraPanel, BoxLayout.X_AXIS));
-        faritanyPanel.add(new JLabel("Faritra: "));
+        // faritraPanel.setLayout(new BoxLayout(faritraPanel, BoxLayout.X_AXIS));
+        faritraPanel.add(new JLabel("Faritra: "));
         faritraPanel.add(this.getFaritraCombobox());
         this.add(faritraPanel);
 
         // District panel
         JPanel districtPanel = new JPanel();
-        districtPanel.setLayout(new BoxLayout(districtPanel, BoxLayout.X_AXIS));
-        faritanyPanel.add(new JLabel("District: "));
+        // districtPanel.setLayout(new BoxLayout(districtPanel, BoxLayout.X_AXIS));
+        districtPanel.add(new JLabel("District: "));
         districtPanel.add(this.getDistrictCombobox());
         this.add(districtPanel);
 
@@ -117,6 +117,7 @@ public class ASelector extends JPanel {
     }
 
     public ASelector(AppContext context) {
+        super();
         this.setAppContext(context);
         this.initComboboxes();
         this.initUI();

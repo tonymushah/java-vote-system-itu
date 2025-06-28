@@ -1,5 +1,7 @@
 package mg.dirk.vote_system.ui.selections.a_selector;
 
+import java.awt.Dimension;
+
 import javax.swing.JComboBox;
 
 import mg.dirk.vote_system.database.DirkDB;
@@ -58,5 +60,6 @@ public class FaritraCombobox extends JComboBox<Faritra> {
         this.setFaritraComboxListener(new FaritraComboboxListener(selector));
         this.setListener();
         this.setAllItems();
+        this.setPreferredSize(new Dimension(150, 24));
     }
 }
