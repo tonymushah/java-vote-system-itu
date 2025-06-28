@@ -7,6 +7,7 @@ import javax.swing.JComboBox;
 import mg.dirk.vote_system.database.DirkDB;
 import mg.dirk.vote_system.database.exceptions.NoRowsException;
 import mg.dirk.vote_system.database.tables.Faritra;
+import mg.dirk.vote_system.ui.MessageBox;
 import mg.dirk.vote_system.ui.selections.ASelector;
 import mg.dirk.vote_system.ui.selections.a_selector.listeners.FaritraComboboxListener;
 
@@ -47,8 +48,7 @@ public class FaritraCombobox extends JComboBox<Faritra> {
                 this.addItem(faritra);
             }
         } catch (NoRowsException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            MessageBox.error(e);
         }
     }
 
