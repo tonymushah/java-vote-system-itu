@@ -1,6 +1,7 @@
 package mg.dirk.vote_system.ui.selections.a_selector;
 
 import java.awt.Dimension;
+import java.util.List;
 
 import javax.swing.JComboBox;
 
@@ -22,13 +23,23 @@ public class DistrictCombobox extends JComboBox<District> {
         return selector;
     }
 
+    public void addItems(District[] faritras) {
+        for (District faritra : faritras) {
+            this.addItem(faritra);
+        }
+    }
+
+    public void addItems(List<District> faritras) {
+        for (District faritra : faritras) {
+            this.addItem(faritra);
+        }
+    }
+
     public void setAllItems() {
         this.removeAllItems();
         DirkDB db = this.getSelector().getAppContext().getDb();
         try {
-            for (District faritany : db.select(District.class)) {
-                this.addItem(faritany);
-            }
+            this.addItems(db.select(District.class));
         } catch (NoRowsException e) {
             MessageBox.error(e);
         }

@@ -1,6 +1,7 @@
 package mg.dirk.vote_system.ui.selections.a_selector;
 
 import java.awt.Dimension;
+import java.util.List;
 
 import javax.swing.JComboBox;
 
@@ -40,13 +41,23 @@ public class FaritraCombobox extends JComboBox<Faritra> {
         this.removeItemListener(this.getFaritraComboxListener());
     }
 
+    public void addItems(Faritra[] faritras) {
+        for (Faritra faritra : faritras) {
+            this.addItem(faritra);
+        }
+    }
+
+    public void addItems(List<Faritra> faritras) {
+        for (Faritra faritra : faritras) {
+            this.addItem(faritra);
+        }
+    }
+
     public void setAllItems() {
         this.removeAllItems();
         DirkDB db = this.getSelector().getAppContext().getDb();
         try {
-            for (Faritra faritra : db.select(Faritra.class)) {
-                this.addItem(faritra);
-            }
+            this.addItems(db.select(Faritra.class));
         } catch (NoRowsException e) {
             MessageBox.error(e);
         }
