@@ -70,6 +70,7 @@ public class DirkDB {
         CSVFormat format = CSVFormat.DEFAULT.builder().setDelimiter(";").setHeader().setIgnoreEmptyLines(true).get();
         File file = new File(table.file());
         if (!file.exists()) {
+            System.out.println(String.format("to create: %s", file.getAbsolutePath()));
             file.createNewFile();
         }
 
