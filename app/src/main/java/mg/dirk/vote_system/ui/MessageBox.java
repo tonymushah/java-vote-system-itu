@@ -1,7 +1,9 @@
 package mg.dirk.vote_system.ui;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,10 +24,19 @@ public class MessageBox extends JFrame {
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel();
-        // panel.setLayout(new GridLayout(3, 1));
-        panel.add(new JLabel(title));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JLabel titleLabel = new JLabel(title);
+        JPanel titlePanel = new JPanel();
+        titlePanel.add(titleLabel);
+        panel.add(titlePanel);
+
         if (description != null) {
-            panel.add(new JLabel(description));
+            JPanel desciptionPanel = new JPanel();
+            JLabel descriptionJLabel = new JLabel(description);
+            descriptionJLabel.setLayout(new FlowLayout(FlowLayout.CENTER));
+            desciptionPanel.add(descriptionJLabel);
+            panel.add(desciptionPanel);
         }
 
         JPanel okPanel = new JPanel();
