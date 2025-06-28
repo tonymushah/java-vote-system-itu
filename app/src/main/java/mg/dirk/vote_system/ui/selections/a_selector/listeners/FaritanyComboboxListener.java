@@ -1,4 +1,4 @@
-package mg.dirk.vote_system.ui.selections.listeners;
+package mg.dirk.vote_system.ui.selections.a_selector.listeners;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
