@@ -58,6 +58,7 @@ public class FaritanyCombobox extends JComboBox<Faritany> {
         this.setFaritanyComboboxListener(new FaritanyComboboxListener(selector));
         this.setListener();
         this.setAllItems();
+        this.setSelectedItem(selector);
     }
 
 }

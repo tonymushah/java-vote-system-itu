@@ -5,10 +5,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import mg.dirk.vote_system.AppContext;
-import mg.dirk.vote_system.database.tables.BureauDeVote;
 import mg.dirk.vote_system.database.tables.District;
 import mg.dirk.vote_system.database.tables.Faritany;
 import mg.dirk.vote_system.database.tables.Faritra;
+import mg.dirk.vote_system.ui.selections.a_selector.DistrictCombobox;
 import mg.dirk.vote_system.ui.selections.a_selector.FaritanyCombobox;
 import mg.dirk.vote_system.ui.selections.a_selector.FaritraCombobox;
 
@@ -16,11 +16,19 @@ public class ASelector extends JPanel {
     private Faritany selectedFaritany;
     private Faritra selectedFaritra;
     private District selectedDistrict;
-    private BureauDeVote selectedBureauDeVote;
     private AppContext appContext;
 
     private FaritanyCombobox faritanyCombobox;
     private FaritraCombobox faritraCombobox;
+    private DistrictCombobox districtCombobox;
+
+    public DistrictCombobox getDistrictCombobox() {
+        return districtCombobox;
+    }
+
+    public void setDistrictCombobox(DistrictCombobox districtCombobox) {
+        this.districtCombobox = districtCombobox;
+    }
 
     public FaritraCombobox getFaritraCombobox() {
         return faritraCombobox;
@@ -43,7 +51,9 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedFaritany(Faritany selectedFaritany) {
-        this.selectedFaritany = selectedFaritany;
+        if (this.selectedFaritany != selectedFaritany) {
+            this.selectedFaritany = selectedFaritany;
+        }
     }
 
     public Faritra getSelectedFaritra() {
@@ -51,7 +61,9 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedFaritra(Faritra selectedFaritra) {
-        this.selectedFaritra = selectedFaritra;
+        if (this.selectedFaritra != selectedFaritra) {
+            this.selectedFaritra = selectedFaritra;
+        }
     }
 
     public District getSelectedDistrict() {
@@ -59,15 +71,9 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedDistrict(District selectedDistrict) {
-        this.selectedDistrict = selectedDistrict;
-    }
-
-    public BureauDeVote getSelectedBureauDeVote() {
-        return selectedBureauDeVote;
-    }
-
-    public void setSelectedBureauDeVote(BureauDeVote selectedBureauDeVote) {
-        this.selectedBureauDeVote = selectedBureauDeVote;
+        if (this.selectedDistrict != selectedDistrict) {
+            this.selectedDistrict = selectedDistrict;
+        }
     }
 
     public AppContext getAppContext() {
@@ -99,19 +105,20 @@ public class ASelector extends JPanel {
         JPanel districtPanel = new JPanel();
         districtPanel.setLayout(new BoxLayout(districtPanel, BoxLayout.X_AXIS));
         faritanyPanel.add(new JLabel("District: "));
+        districtPanel.add(this.getDistrictCombobox());
         this.add(districtPanel);
 
-        // Bureau de vote panel
-        JPanel bureauDeVotePanel = new JPanel();
-        bureauDeVotePanel.setLayout(new BoxLayout(bureauDeVotePanel, BoxLayout.X_AXIS));
-        faritanyPanel.add(new JLabel("Bureau de vote: "));
-        this.add(bureauDeVotePanel);
+    }
+
+    public void initComboboxes() {
+        this.setFaritanyCombobox(new FaritanyCombobox(this));
+        this.setFaritraCombobox(new FaritraCombobox(this));
+        this.setDistrictCombobox(new DistrictCombobox(this));
     }
 
     public ASelector(AppContext context) {
         this.setAppContext(context);
-        this.setFaritanyCombobox(new FaritanyCombobox(this));
-        this.setFaritraCombobox(new FaritraCombobox(this));
+        this.initComboboxes();
         this.initUI();
     }
 
