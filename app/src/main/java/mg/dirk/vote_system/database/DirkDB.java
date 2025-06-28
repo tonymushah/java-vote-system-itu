@@ -236,6 +236,17 @@ public class DirkDB {
         return rows;
     }
 
+    public <T extends Object, U extends Object> List<U> get_relationships(List<T> mainObjects, Class<U> targetClass,
+            String foreignKey)
+            throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
+            InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException {
+        List<U> rows = new ArrayList<U>();
+        for (T t : mainObjects) {
+            rows.addAll(this.get_relationships(t, targetClass, foreignKey));
+        }
+        return rows;
+    }
+
     public <T extends Object, U extends Object> U get_reference(T mainObject, Class<U> targetClass,
             String foreignKey)
             throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
@@ -257,7 +268,19 @@ public class DirkDB {
         throw new ReferredValueNotFoundException(foreignKeyInfo);
     }
 
-    public <T extends Object, U extends Object> List<U> get_references(T[] mainObjects, Class<U> targetClass,
+    public <T extends Object, U extends Object> List<U> get_reference(T[] mainObjects, Class<U> targetClass,
+            String foreignKey)
+            throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
+            InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException,
+            ReferredValueNotFoundException {
+        List<U> rets = new ArrayList<U>();
+        for (T mainObject : mainObjects) {
+            rets.add(this.get_reference(mainObject, targetClass, foreignKey));
+        }
+        return rets;
+    }
+
+    public <T extends Object, U extends Object> List<U> get_reference(List<T> mainObjects, Class<U> targetClass,
             String foreignKey)
             throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
             InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException,
