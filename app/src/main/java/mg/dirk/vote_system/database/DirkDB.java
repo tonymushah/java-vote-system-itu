@@ -257,6 +257,18 @@ public class DirkDB {
         throw new ReferredValueNotFoundException(foreignKeyInfo);
     }
 
+    public <T extends Object, U extends Object> List<U> get_references(T[] mainObjects, Class<U> targetClass,
+            String foreignKey)
+            throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
+            InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException,
+            ReferredValueNotFoundException {
+        List<U> rets = new ArrayList<U>();
+        for (T mainObject : mainObjects) {
+            rets.add(this.get_reference(mainObject, targetClass, foreignKey));
+        }
+        return rets;
+    }
+
     public void truncate(Class<? extends Object> targetClass) {
         List<Object> rows = this.tables.get(targetClass);
         if (rows != null) {
