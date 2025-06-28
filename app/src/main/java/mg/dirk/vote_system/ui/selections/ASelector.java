@@ -84,6 +84,12 @@ public class ASelector extends JPanel {
         this.appContext = appContext;
     }
 
+    public void resetSelections() {
+        this.selectedDistrict = null;
+        this.selectedFaritra = null;
+        this.selectedFaritany = null;
+    }
+
     public void initUI() {
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
