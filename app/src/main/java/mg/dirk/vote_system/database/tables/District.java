@@ -45,4 +45,9 @@ public class District {
         this.setFaritra(faritra);
         this.setNom(nom);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d - %s", this.getId(), this.getNom());
+    }
 }

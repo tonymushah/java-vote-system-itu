@@ -47,4 +47,8 @@ public class GroupePolitique {
         this.setDate_de_creation(date_de_creation);
     }
 
+    @Override
+    public String toString() {
+        return String.format("%d - %s", this.getId(), this.getNom());
+    }
 }

@@ -25,4 +25,8 @@ public class Faritany {
         this.nom = nom;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%d - %s", this.getId(), this.getNom());
+    }
 }

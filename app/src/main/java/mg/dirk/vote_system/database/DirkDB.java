@@ -224,6 +224,17 @@ public class DirkDB {
         return toReturns;
     }
 
+    public <T extends Object, U extends Object> List<U> get_relationships(T[] mainObjects, Class<U> targetClass,
+            String foreignKey)
+            throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,
+            InvalidForeignKeyTarget, IllegalAccessException, InvocationTargetException, InvalidClassException {
+        List<U> rows = new ArrayList<U>();
+        for (T t : mainObjects) {
+            rows.addAll(this.get_relationships(t, targetClass, foreignKey));
+        }
+        return rows;
+    }
+
     public <T extends Object, U extends Object> U get_reference(T mainObject, Class<U> targetClass,
             String foreignKey)
             throws NoSuchMethodException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException,

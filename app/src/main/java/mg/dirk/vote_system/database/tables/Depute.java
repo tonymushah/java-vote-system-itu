@@ -73,4 +73,9 @@ public class Depute {
         }
         return votes;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d - %s", this.getId(), this.getNom());
+    }
 }

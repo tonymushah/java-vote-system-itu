@@ -46,4 +46,8 @@ public class BureauDeVote {
         this.setDistrict(district);
     }
 
+    @Override
+    public String toString() {
+        return String.format("%d - %s", this.getId(), this.getNom());
+    }
 }

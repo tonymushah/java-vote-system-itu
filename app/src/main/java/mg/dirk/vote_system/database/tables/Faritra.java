@@ -41,4 +41,9 @@ public class Faritra {
         this.setName(new String());
         this.setId(0);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d - %s", this.getId(), this.getName());
+    }
 }

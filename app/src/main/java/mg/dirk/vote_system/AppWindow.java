@@ -22,7 +22,6 @@ public class AppWindow extends JFrame {
     }
 
     private void initFrame() {
-
         this.setPreferredSize(defaultDimension);
         this.setSize(defaultDimension);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
