@@ -35,8 +35,12 @@ public class DistrictCombobox extends JComboBox<District> {
         }
     }
 
-    public void setAllItems() {
+    public void initAllItems() {
         this.removeAllItems();
+        this.setAllItems();
+    }
+
+    public void setAllItems() {
         DirkDB db = this.getSelector().getAppContext().getDb();
         try {
             this.addItems(db.select(District.class));
@@ -56,11 +60,13 @@ public class DistrictCombobox extends JComboBox<District> {
     }
 
     public void setListener() {
-        this.addItemListener(this.getDistrictComboboxListener());
+        if (this.getDistrictComboboxListener() != null)
+            this.addItemListener(this.getDistrictComboboxListener());
     }
 
     public void removeListener() {
-        this.removeItemListener(this.getDistrictComboboxListener());
+        if (this.getDistrictComboboxListener() != null)
+            this.removeItemListener(this.getDistrictComboboxListener());
     }
 
     public DistrictCombobox(ASelector selector) {
@@ -69,8 +75,8 @@ public class DistrictCombobox extends JComboBox<District> {
         this.setToolTipText("District");
         this.setSelector(selector);
         this.setDistrictComboboxListener(new DistrictComboboxListener(selector));
-        this.setListener();
-        this.setAllItems();
+        this.initAllItems();
         this.setPreferredSize(new Dimension(150, 24));
+        this.setListener();
     }
 }

@@ -1,13 +1,22 @@
 package mg.dirk.vote_system.ui.selections;
 
+import java.io.InvalidClassException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import mg.dirk.vote_system.AppContext;
+import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
+import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
+import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 import mg.dirk.vote_system.database.tables.District;
 import mg.dirk.vote_system.database.tables.Faritany;
 import mg.dirk.vote_system.database.tables.Faritra;
+import mg.dirk.vote_system.ui.MessageBox;
 import mg.dirk.vote_system.ui.selections.a_selector.DistrictCombobox;
 import mg.dirk.vote_system.ui.selections.a_selector.FaritanyCombobox;
 import mg.dirk.vote_system.ui.selections.a_selector.FaritraCombobox;
@@ -51,8 +60,39 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedFaritany(Faritany selectedFaritany) {
-        if (this.selectedFaritany != selectedFaritany) {
+        if (selectedFaritany == null) {
+            this.selectedFaritany = null;
+        } else if (this.selectedFaritany != selectedFaritany && selectedFaritany != null
+                && this.getFaritanyCombobox() != null) {
+            System.out.println(selectedFaritany);
             this.selectedFaritany = selectedFaritany;
+            boolean isInitiallyLocked = this.isLocked();
+            if (!isInitiallyLocked) {
+                this.lock();
+            }
+            try {
+                List<Faritra> faritras = this.getAppContext().getDb().get_relationships(this.getSelectedFaritany(),
+                        Faritra.class, "getFaritany");
+
+                this.getFaritraCombobox().removeAllItems();
+                this.getFaritraCombobox().addItems(faritras);
+
+                List<District> districts = this.getAppContext().getDb().get_relationships(
+                        faritras.toArray(new Faritra[faritras.size()]),
+                        District.class, "getFaritra");
+
+                this.getDistrictCombobox().removeAllItems();
+                this.getDistrictCombobox().addItems(districts);
+
+            } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
+                    | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget e) {
+                this.resetSelections();
+                e.printStackTrace();
+                MessageBox.error(e);
+            }
+            if (!isInitiallyLocked) {
+                this.unlock();
+            }
         }
     }
 
@@ -60,9 +100,77 @@ public class ASelector extends JPanel {
         return selectedFaritra;
     }
 
+    public void unlistenComboboxes() {
+        if (this.getFaritanyCombobox() != null)
+            this.getFaritanyCombobox().removeListener();
+        if (this.getFaritraCombobox() != null)
+            this.getFaritraCombobox().removeListener();
+        if (this.getDistrictCombobox() != null)
+            this.getDistrictCombobox().removeListener();
+    }
+
+    public void relistenComboboxes() {
+        if (this.getFaritanyCombobox() != null)
+            this.getFaritanyCombobox().setListener();
+        if (this.getFaritraCombobox() != null)
+            this.getFaritraCombobox().setListener();
+        if (this.getDistrictCombobox() != null)
+            this.getDistrictCombobox().setListener();
+    }
+
+    protected boolean isLocked;
+
+    private boolean isLocked() {
+        return this.isLocked;
+    }
+
+    private void lock() {
+        this.isLocked = true;
+        this.unlistenComboboxes();
+    }
+
+    private void unlock() {
+        this.isLocked = false;
+        this.relistenComboboxes();
+    }
+
     public void setSelectedFaritra(Faritra selectedFaritra) {
-        if (this.selectedFaritra != selectedFaritra) {
+        if (selectedFaritra == null) {
+            this.selectedFaritra = null;
+        } else if (this.selectedFaritra != selectedFaritra && this.selectedFaritra != null
+                && this.getFaritraCombobox() != null) {
+            System.out.println(selectedFaritra);
             this.selectedFaritra = selectedFaritra;
+            boolean isInitiallyLocked = this.isLocked();
+            if (!isInitiallyLocked) {
+                this.lock();
+            }
+            try {
+                Faritany faritany = this.getAppContext().getDb().get_reference(selectedFaritra, Faritany.class,
+                        "getFaritany");
+
+                this.setSelectedFaritany(faritany);
+                if (this.getFaritanyCombobox() != null) {
+                    this.getFaritanyCombobox().setSelectedItem(faritany);
+                }
+
+                List<District> districts = this.getAppContext().getDb().get_relationships(
+                        selectedFaritra,
+                        District.class, "getFaritra");
+
+                this.getDistrictCombobox().removeAllItems();
+                this.getDistrictCombobox().addItems(districts);
+
+            } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
+                    | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
+                    | ReferredValueNotFoundException e) {
+                this.resetSelections();
+                e.printStackTrace();
+                MessageBox.error(e);
+            }
+            if (!isInitiallyLocked) {
+                this.unlock();
+            }
         }
     }
 
@@ -71,7 +179,8 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedDistrict(District selectedDistrict) {
-        if (this.selectedDistrict != selectedDistrict) {
+        if (this.selectedDistrict != selectedDistrict && selectedDistrict != null) {
+            System.out.println(selectedDistrict);
             this.selectedDistrict = selectedDistrict;
         }
     }
@@ -88,6 +197,9 @@ public class ASelector extends JPanel {
         this.selectedDistrict = null;
         this.selectedFaritra = null;
         this.selectedFaritany = null;
+        this.getFaritanyCombobox().setAllItems();
+        this.getFaritraCombobox().setAllItems();
+        this.getDistrictCombobox().setAllItems();
     }
 
     public void initUI() {

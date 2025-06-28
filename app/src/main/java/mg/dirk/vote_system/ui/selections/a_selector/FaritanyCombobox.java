@@ -35,6 +35,11 @@ public class FaritanyCombobox extends JComboBox<Faritany> {
         }
     }
 
+    public void initAllItems() {
+        this.removeAllItems();
+        this.setAllItems();
+    }
+
     public void setAllItems() {
         this.removeAllItems();
         DirkDB db = this.getSelector().getAppContext().getDb();
@@ -56,11 +61,15 @@ public class FaritanyCombobox extends JComboBox<Faritany> {
     }
 
     public void setListener() {
-        this.addItemListener(this.getFaritanyComboboxListener());
+        if (this.getFaritanyComboboxListener() != null)
+            this.addItemListener(this.getFaritanyComboboxListener());
     }
 
     public void removeListener() {
-        this.removeItemListener(this.getFaritanyComboboxListener());
+        if (this.getFaritanyComboboxListener() != null) {
+            this.removeItemListener(this.getFaritanyComboboxListener());
+        }
+
     }
 
     public FaritanyCombobox(ASelector selector) {
@@ -69,9 +78,9 @@ public class FaritanyCombobox extends JComboBox<Faritany> {
         this.setToolTipText("Faritany");
         this.setSelector(selector);
         this.setFaritanyComboboxListener(new FaritanyComboboxListener(selector));
-        this.setListener();
-        this.setAllItems();
+        this.initAllItems();
         this.setPreferredSize(new Dimension(150, 24));
+        this.setListener();
     }
 
 }

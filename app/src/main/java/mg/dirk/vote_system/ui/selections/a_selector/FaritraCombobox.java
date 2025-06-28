@@ -34,11 +34,13 @@ public class FaritraCombobox extends JComboBox<Faritra> {
     }
 
     public void setListener() {
-        this.addItemListener(this.getFaritraComboxListener());
+        if (this.getFaritraComboxListener() != null)
+            this.addItemListener(this.getFaritraComboxListener());
     }
 
     public void removeListener() {
-        this.removeItemListener(this.getFaritraComboxListener());
+        if (this.getFaritraComboxListener() != null)
+            this.removeItemListener(this.getFaritraComboxListener());
     }
 
     public void addItems(Faritra[] faritras) {
@@ -51,6 +53,11 @@ public class FaritraCombobox extends JComboBox<Faritra> {
         for (Faritra faritra : faritras) {
             this.addItem(faritra);
         }
+    }
+
+    public void initAllItems() {
+        this.removeAllItems();
+        this.setAllItems();
     }
 
     public void setAllItems() {
@@ -69,8 +76,8 @@ public class FaritraCombobox extends JComboBox<Faritra> {
         this.setToolTipText("Faritra");
         this.setSelector(selector);
         this.setFaritraComboxListener(new FaritraComboboxListener(selector));
-        this.setListener();
-        this.setAllItems();
+        this.initAllItems();
         this.setPreferredSize(new Dimension(150, 24));
+        this.setListener();
     }
 }
