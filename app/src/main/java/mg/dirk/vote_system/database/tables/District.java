@@ -1,9 +1,20 @@
 package mg.dirk.vote_system.database.tables;
 
+import java.io.InvalidClassException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
+import mg.dirk.vote_system.database.DirkDB;
 import mg.dirk.vote_system.database.annotations.ForeignKey;
 import mg.dirk.vote_system.database.annotations.NoThrowOnParse;
 import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
+import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.NoRowsException;
+import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
+import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
+import mg.dirk.vote_system.database.tables.helpers.DistrictDepute;
 
 @Table(file = "data/district.csv")
 public class District {
@@ -63,4 +74,26 @@ public class District {
     public String toString() {
         return String.format("%d - %s", this.getId(), this.getNom());
     }
+
+    public List<DistrictDepute> getElectedDepute(DirkDB db)
+            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
+        List<DistrictDepute> deputes_votes = new ArrayList<>();
+        for (Depute depute : db.get_relationships(this, Depute.class, "getDistrict")) {
+            deputes_votes.add(new DistrictDepute(this, depute, depute.getVotes(db)));
+        }
+        // TODO Add sort mdr
+        return deputes_votes.subList(0, this.getNbDepute());
+    }
+
+    public static List<DistrictDepute> getElecteDeputes(DirkDB db)
+            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            NoRowsException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
+        List<DistrictDepute> deputes_votes = new ArrayList<>();
+        for (District district : db.select(District.class)) {
+            deputes_votes.addAll(district.getElectedDepute(db));
+        }
+        return deputes_votes;
+    }
+
 }

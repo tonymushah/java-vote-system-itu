@@ -8,6 +8,7 @@ import mg.dirk.vote_system.database.annotations.ForeignKey;
 import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
 import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
 import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 
@@ -72,6 +73,12 @@ public class Depute {
             votes = votes + vote.getNb_vote();
         }
         return votes;
+    }
+
+    public GroupePolitique getGroupePolitique(DirkDB db) throws InvalidClassException, NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, UndefinedPrimaryKeyException,
+            UndefinedTableAnnotationException, InvalidForeignKeyTarget, ReferredValueNotFoundException {
+        return db.get_reference(this, GroupePolitique.class, "getGroupe_politique");
     }
 
     @Override
