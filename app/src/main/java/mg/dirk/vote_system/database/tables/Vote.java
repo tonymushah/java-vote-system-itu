@@ -1,8 +1,12 @@
 package mg.dirk.vote_system.database.tables;
 
+import java.util.List;
+
+import mg.dirk.vote_system.database.DirkDB;
 import mg.dirk.vote_system.database.annotations.ForeignKey;
 import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
+import mg.dirk.vote_system.database.exceptions.NoRowsException;
 
 @Table(file = "data/votes.csv")
 public class Vote {
@@ -56,4 +60,17 @@ public class Vote {
         this.setNb_vote(nb_vote);
     }
 
+    public static int nextId(DirkDB db) {
+        try {
+            List<Vote> votes = db.select(Vote.class);
+            Vote last = votes.getLast();
+            if (last != null) {
+                return last.id + 1;
+            } else {
+                return 1;
+            }
+        } catch (NoRowsException e) {
+            return 1;
+        }
+    }
 }
