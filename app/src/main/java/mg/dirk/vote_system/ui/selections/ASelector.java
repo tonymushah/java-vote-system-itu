@@ -4,7 +4,7 @@ import java.io.InvalidClassException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import javax.swing.BoxLayout;
+// import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -124,16 +124,16 @@ public class ASelector extends JPanel {
 
     protected boolean isLocked;
 
-    private boolean isLocked() {
+    public boolean isLocked() {
         return this.isLocked;
     }
 
-    private void lock() {
+    public void lock() {
         this.isLocked = true;
         this.unlistenComboboxes();
     }
 
-    private void unlock() {
+    public void unlock() {
         this.isLocked = false;
         this.relistenComboboxes();
     }
@@ -190,7 +190,8 @@ public class ASelector extends JPanel {
     public void setSelectedDistrict(District selectedDistrict) {
         if (selectedDistrict == null) {
             this.selectedDistrict = null;
-        } else if (this.selectedDistrict != selectedDistrict && selectedDistrict != null) {
+        } else if (this.selectedDistrict != selectedDistrict && selectedDistrict != null
+                && this.getDistrictCombobox() != null) {
             System.out.println(selectedDistrict);
             this.selectedDistrict = selectedDistrict;
             boolean isInitiallyLocked = this.isLocked();
@@ -245,7 +246,7 @@ public class ASelector extends JPanel {
     }
 
     public void initUI() {
-        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        // this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // Faritany panel
         JPanel faritanyPanel = new JPanel();
