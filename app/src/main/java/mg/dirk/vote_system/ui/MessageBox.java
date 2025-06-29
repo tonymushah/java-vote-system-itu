@@ -1,7 +1,6 @@
 package mg.dirk.vote_system.ui;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -33,9 +32,10 @@ public class MessageBox extends JFrame {
 
         if (description != null) {
             JPanel desciptionPanel = new JPanel();
-            JLabel descriptionJLabel = new JLabel(description);
-            descriptionJLabel.setLayout(new FlowLayout(FlowLayout.CENTER));
-            desciptionPanel.add(descriptionJLabel);
+            for (String string : description.split(" ")) {
+                JLabel descriptionJLabel = new JLabel(string);
+                desciptionPanel.add(descriptionJLabel);
+            }
             panel.add(desciptionPanel);
         }
 
