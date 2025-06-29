@@ -1,6 +1,7 @@
 package mg.dirk.vote_system.database.tables;
 
 import mg.dirk.vote_system.database.annotations.ForeignKey;
+import mg.dirk.vote_system.database.annotations.NoThrowOnParse;
 import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
 
@@ -9,6 +10,16 @@ public class District {
     private int id;
     private String nom;
     private int faritra;
+    @NoThrowOnParse
+    private int nbDepute;
+
+    public int getNbDepute() {
+        return nbDepute;
+    }
+
+    public void setNbDepute(int nbDepute) {
+        this.nbDepute = nbDepute;
+    }
 
     @PrimaryKey
     public int getId() {
@@ -38,9 +49,11 @@ public class District {
 
     public District() {
         this.setNom(new String());
+        this.setNbDepute(1);
     }
 
     public District(int id, String nom, int faritra) {
+        this();
         this.setId(id);
         this.setFaritra(faritra);
         this.setNom(nom);

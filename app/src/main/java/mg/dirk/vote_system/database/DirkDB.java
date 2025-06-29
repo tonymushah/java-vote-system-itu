@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.csv.*;
 
+import mg.dirk.vote_system.database.annotations.NoThrowOnParse;
 import mg.dirk.vote_system.database.annotations.SkipDeserialization;
 import mg.dirk.vote_system.database.annotations.SkipSerialization;
 import mg.dirk.vote_system.database.annotations.Table;
@@ -86,7 +87,13 @@ public class DirkDB {
                     }
                     Method setter = getFieldSetter(class1, field);
 
-                    setter.invoke(row, parseString(csvRecord.get(field.getName()), field.getType()));
+                    if (field.isAnnotationPresent(NoThrowOnParse.class)) {
+                        try {
+                            setter.invoke(row, parseString(csvRecord.get(field.getName()), field.getType()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 rows.add(row);
             }
