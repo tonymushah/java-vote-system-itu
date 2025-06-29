@@ -93,6 +93,8 @@ public class DirkDB {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        setter.invoke(row, parseString(csvRecord.get(field.getName()), field.getType()));
                     }
                 }
                 rows.add(row);
