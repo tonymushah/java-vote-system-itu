@@ -74,15 +74,19 @@ public class ASelector extends JPanel {
                 List<Faritra> faritras = this.getAppContext().getDb().get_relationships(this.getSelectedFaritany(),
                         Faritra.class, "getFaritany");
 
+                // if (!faritras.contains(this.getFaritraCombobox().getSelectedItem())) {
                 this.getFaritraCombobox().removeAllItems();
                 this.getFaritraCombobox().addItems(faritras);
+                // }
 
                 List<District> districts = this.getAppContext().getDb().get_relationships(
                         faritras.toArray(new Faritra[faritras.size()]),
                         District.class, "getFaritra");
 
+                // if (!districts.contains(this.getDistrictCombobox().getSelectedItem())) {
                 this.getDistrictCombobox().removeAllItems();
                 this.getDistrictCombobox().addItems(districts);
+                // }
 
             } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
                     | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget e) {
@@ -135,9 +139,10 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedFaritra(Faritra selectedFaritra) {
+        System.out.println(selectedFaritra);
         if (selectedFaritra == null) {
             this.selectedFaritra = null;
-        } else if (this.selectedFaritra != selectedFaritra && this.selectedFaritra != null
+        } else if (this.selectedFaritra != selectedFaritra && selectedFaritra != null
                 && this.getFaritraCombobox() != null) {
             System.out.println(selectedFaritra);
             this.selectedFaritra = selectedFaritra;
@@ -145,6 +150,7 @@ public class ASelector extends JPanel {
             if (!isInitiallyLocked) {
                 this.lock();
             }
+
             try {
                 Faritany faritany = this.getAppContext().getDb().get_reference(selectedFaritra, Faritany.class,
                         "getFaritany");
@@ -158,9 +164,12 @@ public class ASelector extends JPanel {
                         selectedFaritra,
                         District.class, "getFaritra");
 
+                // if (!districts.contains(this.getDistrictCombobox().getSelectedItem())) {
                 this.getDistrictCombobox().removeAllItems();
                 this.getDistrictCombobox().addItems(districts);
+                // }
 
+                this.getFaritraCombobox().setSelectedItem(selectedFaritra);
             } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
                     | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
                     | ReferredValueNotFoundException e) {
@@ -179,9 +188,31 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedDistrict(District selectedDistrict) {
-        if (this.selectedDistrict != selectedDistrict && selectedDistrict != null) {
+        if (selectedDistrict == null) {
+            this.selectedDistrict = null;
+        } else if (this.selectedDistrict != selectedDistrict && selectedDistrict != null) {
             System.out.println(selectedDistrict);
             this.selectedDistrict = selectedDistrict;
+            boolean isInitiallyLocked = this.isLocked();
+            if (!isInitiallyLocked) {
+                this.lock();
+            }
+            try {
+                Faritra faritra = this.getAppContext().getDb().get_reference(selectedDistrict, Faritra.class,
+                        "getFaritra");
+
+                this.setSelectedFaritra(faritra);
+
+            } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
+                    | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
+                    | ReferredValueNotFoundException e) {
+                this.resetSelections();
+                e.printStackTrace();
+                MessageBox.error(e);
+            }
+            if (!isInitiallyLocked) {
+                this.unlock();
+            }
         }
     }
 
@@ -193,13 +224,24 @@ public class ASelector extends JPanel {
         this.appContext = appContext;
     }
 
+    public void initAllItems() {
+        boolean isInitiallyLocked = this.isLocked();
+        if (!isInitiallyLocked) {
+            this.lock();
+        }
+        this.getFaritanyCombobox().initAllItems();
+        this.getFaritraCombobox().initAllItems();
+        this.getDistrictCombobox().initAllItems();
+        if (!isInitiallyLocked) {
+            this.unlock();
+        }
+    }
+
     public void resetSelections() {
         this.selectedDistrict = null;
         this.selectedFaritra = null;
         this.selectedFaritany = null;
-        this.getFaritanyCombobox().setAllItems();
-        this.getFaritraCombobox().setAllItems();
-        this.getDistrictCombobox().setAllItems();
+        this.initAllItems();
     }
 
     public void initUI() {
