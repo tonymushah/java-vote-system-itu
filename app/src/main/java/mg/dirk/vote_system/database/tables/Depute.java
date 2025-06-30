@@ -16,7 +16,7 @@ import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException
 public class Depute {
     private int id;
     private String nom;
-    private int district;
+    // private int district;
     private int groupe_politique;
 
     @PrimaryKey
@@ -36,14 +36,16 @@ public class Depute {
         this.nom = nom;
     }
 
-    @ForeignKey(targetClass = District.class)
-    public int getDistrict() {
-        return district;
-    }
-
-    public void setDistrict(int district) {
-        this.district = district;
-    }
+    /*
+     * @ForeignKey(targetClass = District.class)
+     * public int getDistrict() {
+     * return district;
+     * }
+     * 
+     * public void setDistrict(int district) {
+     * this.district = district;
+     * }
+     */
 
     public Depute() {
         this.setNom(new String());
@@ -58,21 +60,11 @@ public class Depute {
         this.groupe_politique = groupe_politique;
     }
 
-    public Depute(int id, String nom, int district, int groupe_politique) {
+    public Depute(int id, String nom, /* int district, */ int groupe_politique) {
         this.setId(id);
-        this.setDistrict(district);
+        // this.setDistrict(district);
         this.setGroupe_politique(groupe_politique);
         this.setNom(nom);
-    }
-
-    public int getVotes(DirkDB db)
-            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
-            UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
-        int votes = 0;
-        for (Vote vote : db.get_relationships(this, Vote.class, "getDepute")) {
-            votes = votes + vote.getNb_vote();
-        }
-        return votes;
     }
 
     public GroupePolitique getGroupePolitique(DirkDB db) throws InvalidClassException, NoSuchMethodException,

@@ -3,7 +3,10 @@ package mg.dirk.vote_system.database.tables;
 import java.io.InvalidClassException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 import mg.dirk.vote_system.database.DirkDB;
 import mg.dirk.vote_system.database.annotations.ForeignKey;
@@ -12,6 +15,7 @@ import mg.dirk.vote_system.database.annotations.PrimaryKey;
 import mg.dirk.vote_system.database.annotations.Table;
 import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
 import mg.dirk.vote_system.database.exceptions.NoRowsException;
+import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
 import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 import mg.dirk.vote_system.database.tables.helpers.DistrictDepute;
@@ -77,13 +81,35 @@ public class District {
         return String.format("%d - %s", this.getId(), this.getNom());
     }
 
-    public List<DistrictDepute> getElectedDepute(DirkDB db)
+    public List<BureauDeVote> getBureauDeVotes(DirkDB db)
             throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
             UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
-        List<DistrictDepute> deputes_votes = new ArrayList<>();
-        for (Depute depute : db.get_relationships(this, Depute.class, "getDistrict")) {
-            deputes_votes.add(new DistrictDepute(this, depute, depute.getVotes(db)));
+        return db.get_relationships(this, BureauDeVote.class, "getDistrict");
+    }
+
+    public List<Vote> getVotes(DirkDB db)
+            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
+        return db.get_relationships(this.getBureauDeVotes(db), Vote.class,
+                "getBureau_de_vote");
+    }
+
+    public List<DistrictDepute> getElectedDepute(DirkDB db)
+            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget,
+            ReferredValueNotFoundException {
+        HashMap<Depute, Integer> toUseVotes = new HashMap<>();
+        for (Vote vote : this.getVotes(db)) {
+            Depute depute = db.get_reference(vote, Depute.class, "getDepute");
+            int votes = toUseVotes.getOrDefault(depute, 0).intValue();
+            toUseVotes.put(depute, votes + vote.getNb_vote());
         }
+
+        List<DistrictDepute> deputes_votes = new ArrayList<>();
+        for (Entry<Depute, Integer> entry : toUseVotes.entrySet()) {
+            deputes_votes.add(new DistrictDepute(this, entry.getKey(), entry.getValue()));
+        }
+
         if (deputes_votes.size() == 0) {
             return deputes_votes;
         }
@@ -108,9 +134,20 @@ public class District {
 
     }
 
+    public List<Depute> getDeputes(DirkDB db) throws InvalidClassException, NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, UndefinedPrimaryKeyException,
+            UndefinedTableAnnotationException, InvalidForeignKeyTarget, ReferredValueNotFoundException {
+        HashSet<Depute> deputes = new HashSet<>();
+        for (BureauDeVote dBureauDeVote : this.getBureauDeVotes(db)) {
+            deputes.addAll(dBureauDeVote.getDeputes(db));
+        }
+        return new ArrayList<>(deputes);
+    }
+
     public static List<DistrictDepute> getElecteDeputes(DirkDB db)
             throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
-            NoRowsException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
+            NoRowsException, UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget,
+            ReferredValueNotFoundException {
         List<DistrictDepute> deputes_votes = new ArrayList<>();
         for (District district : db.select(District.class)) {
             deputes_votes.addAll(district.getElectedDepute(db));
