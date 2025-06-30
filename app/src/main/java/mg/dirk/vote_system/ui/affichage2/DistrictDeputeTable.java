@@ -9,6 +9,7 @@ import javax.swing.JTable;
 import mg.dirk.vote_system.AppContext;
 import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
 import mg.dirk.vote_system.database.exceptions.NoRowsException;
+import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
 import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 import mg.dirk.vote_system.database.tables.District;
@@ -38,7 +39,7 @@ public class DistrictDeputeTable extends JTable {
             this.setModel(new GenericTableModel(deputes.toArray(new DistrictDepute[deputes.size()])));
         } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
                 | NoRowsException | UndefinedPrimaryKeyException | UndefinedTableAnnotationException
-                | InvalidForeignKeyTarget e) {
+                | InvalidForeignKeyTarget | ReferredValueNotFoundException e) {
             MessageBox.error(e);
         }
     }
