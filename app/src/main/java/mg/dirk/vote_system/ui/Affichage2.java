@@ -3,6 +3,7 @@ package mg.dirk.vote_system.ui;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import mg.dirk.vote_system.AppContext;
 import mg.dirk.vote_system.ui.affichage2.DistrictDeputeTable;
@@ -34,7 +35,8 @@ public class Affichage2 extends JPanel {
         title.add(new JLabel("Listes des depute elu"));
         this.add(title);
 
-        JPanel table = new JPanel();
+        JScrollPane table = new JScrollPane();
+        table.setLayout(new BoxLayout(table, BoxLayout.X_AXIS));
         if (this.getDistrictDeputeTable() != null) {
             table.add(this.getDistrictDeputeTable());
         } else {

@@ -32,7 +32,11 @@ public class GenericTableModel implements TableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        if (objects.length == 0) {
+            return String.class;
+        } else {
+            return objects[0].getClass().getDeclaredFields()[columnIndex].getType();
+        }
     }
 
     @Override

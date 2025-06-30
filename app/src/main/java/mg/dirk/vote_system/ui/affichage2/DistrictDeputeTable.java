@@ -29,6 +29,7 @@ public class DistrictDeputeTable extends JTable {
     }
 
     public DistrictDeputeTable(AppContext context) {
+        super();
         this.setContext(context);
         this.init();
     }
@@ -45,6 +46,7 @@ public class DistrictDeputeTable extends JTable {
     }
 
     public void refresh() {
+
         this.removeAll();
         this.init();
     }
