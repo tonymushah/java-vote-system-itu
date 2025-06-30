@@ -7,7 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
-import mg.dirk.vote_system.ui.PlacehoderTabContent;
+import mg.dirk.vote_system.ui.Affichage1;
+import mg.dirk.vote_system.ui.Affichage2;
 
 public class AppWindow extends JFrame {
     private AppContext appContext;
@@ -30,9 +31,16 @@ public class AppWindow extends JFrame {
 
     private void setUi() {
         Container container = this.getContentPane();
+
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Votez", new PlacehoderTabContent());
-        tabs.addTab("Classement", new PlacehoderTabContent());
+
+        Affichage1 affichage1 = new Affichage1(this.getAppContext());
+        tabs.addTab("Votez", affichage1);
+
+        Affichage2 affichage2 = new Affichage2(this.getAppContext());
+        tabs.addTab("Classement", affichage2);
+        affichage1.setAffichage2(affichage2);
+
         container.add(tabs);
     }
 
