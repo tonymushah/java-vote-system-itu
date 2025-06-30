@@ -16,6 +16,7 @@ import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 import mg.dirk.vote_system.database.tables.helpers.DistrictDepute;
 import mg.dirk.vote_system.database.tables.helpers.VotesDistrictDeputeComparator;
+import mg.dirk.vote_system.database.tables.helpers.VotesWGroupeDistrictDeputeComparator;
 
 @Table(file = "data/district.csv")
 public class District {
@@ -86,9 +87,25 @@ public class District {
         if (deputes_votes.size() == 0) {
             return deputes_votes;
         }
-        // TODO Add sort mdr
-        deputes_votes.sort(new VotesDistrictDeputeComparator());
-        return deputes_votes.subList(0, this.getNbDepute());
+        // [x] Add sort mdr
+        // TODO Check if sort works
+        deputes_votes.sort((new VotesDistrictDeputeComparator()).reversed());
+        if (this.getNbDepute() == 1) {
+            List<DistrictDepute> deputes = new ArrayList<>();
+            int max = deputes_votes.getFirst().getNbVotes();
+            for (DistrictDepute districtDepute : deputes_votes) {
+                if (districtDepute.getNbVotes() == max) {
+                    deputes.add(districtDepute);
+                } else {
+                    break;
+                }
+            }
+            deputes.sort((new VotesWGroupeDistrictDeputeComparator(db)).reversed());
+            return deputes.subList(0, 1);
+        } else {
+            return deputes_votes.subList(0, this.getNbDepute());
+        }
+
     }
 
     public static List<DistrictDepute> getElecteDeputes(DirkDB db)
