@@ -15,6 +15,7 @@ import mg.dirk.vote_system.database.exceptions.NoRowsException;
 import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
 import mg.dirk.vote_system.database.tables.helpers.DistrictDepute;
+import mg.dirk.vote_system.database.tables.helpers.VotesDistrictDeputeComparator;
 
 @Table(file = "data/district.csv")
 public class District {
@@ -86,6 +87,7 @@ public class District {
             return deputes_votes;
         }
         // TODO Add sort mdr
+        deputes_votes.sort(new VotesDistrictDeputeComparator());
         return deputes_votes.subList(0, this.getNbDepute());
     }
 
