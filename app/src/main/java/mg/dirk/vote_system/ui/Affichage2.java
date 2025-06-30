@@ -35,13 +35,14 @@ public class Affichage2 extends JPanel {
         title.add(new JLabel("Listes des depute elu"));
         this.add(title);
 
-        JScrollPane table = new JScrollPane();
-        table.setLayout(new BoxLayout(table, BoxLayout.X_AXIS));
+        JScrollPane table;
         if (this.getDistrictDeputeTable() != null) {
-            table.add(this.getDistrictDeputeTable());
+            table = new JScrollPane(this.getDistrictDeputeTable());
         } else {
-            table.add(new PlacehoderTabContent());
+            table = new JScrollPane(new PlacehoderTabContent());
         }
+        // table.setLayout(new BoxLayout(table, BoxLayout.X_AXIS));
+
         this.add(table);
     }
 
