@@ -37,6 +37,9 @@ public class GenericTableModel implements TableModel {
 
     @Override
     public int getColumnCount() {
+        if (objects.length == 0) {
+            return 0;
+        }
         return objects[0].getClass().getDeclaredFields().length;
     }
 

@@ -82,6 +82,9 @@ public class District {
         for (Depute depute : db.get_relationships(this, Depute.class, "getDistrict")) {
             deputes_votes.add(new DistrictDepute(this, depute, depute.getVotes(db)));
         }
+        if (deputes_votes.size() == 0) {
+            return deputes_votes;
+        }
         // TODO Add sort mdr
         return deputes_votes.subList(0, this.getNbDepute());
     }
