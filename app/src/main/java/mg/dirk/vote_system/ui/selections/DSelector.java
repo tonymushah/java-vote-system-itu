@@ -232,10 +232,13 @@ public class DSelector extends ASelector {
     @Override
     public void initAllItems() {
         boolean isInitiallyLocked = this.isLocked();
+        if (!isInitiallyLocked) {
+            this.lock();
+        }
         super.initAllItems();
         this.getBureauDeVoteCombobox().initAllItems();
         if (!isInitiallyLocked) {
-            this.lock();
+            this.unlock();
         }
     }
 
