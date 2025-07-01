@@ -6,6 +6,7 @@ import java.awt.event.ItemListener;
 import mg.dirk.vote_system.database.tables.BureauDeVote;
 import mg.dirk.vote_system.ui.selections.ASelector;
 import mg.dirk.vote_system.ui.selections.CSelector;
+import mg.dirk.vote_system.ui.selections.DSelector;
 
 public class BureauDeVoteComboboxListener implements ItemListener {
     private ASelector selector;
@@ -30,6 +31,8 @@ public class BureauDeVoteComboboxListener implements ItemListener {
             ASelector selector = this.getSelector();
             if (selector instanceof CSelector) {
                 ((CSelector) selector).setSelectedBureauDeVote((BureauDeVote) item);
+            } else if (selector instanceof DSelector) {
+                ((DSelector) selector).setSelectedBureauDeVote((BureauDeVote) item);
             }
         }
     }

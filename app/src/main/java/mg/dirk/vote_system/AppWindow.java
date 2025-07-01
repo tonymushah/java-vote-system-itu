@@ -9,6 +9,7 @@ import javax.swing.WindowConstants;
 
 import mg.dirk.vote_system.ui.Affichage1;
 import mg.dirk.vote_system.ui.Affichage2;
+import mg.dirk.vote_system.ui.Affichage3;
 
 public class AppWindow extends JFrame {
     private AppContext appContext;
@@ -40,6 +41,9 @@ public class AppWindow extends JFrame {
         Affichage2 affichage2 = new Affichage2(this.getAppContext());
         tabs.addTab("Classement", affichage2);
         affichage1.setAffichage2(affichage2);
+
+        Affichage3 affichage3 = new Affichage3(this.getAppContext());
+        tabs.addTab("Recherche", affichage3);
 
         container.add(tabs);
     }
