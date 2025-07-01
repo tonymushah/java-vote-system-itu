@@ -73,6 +73,16 @@ public class Depute {
         return db.get_reference(this, GroupePolitique.class, "getGroupe_politique");
     }
 
+    public int getVotesTotal(DirkDB db)
+            throws InvalidClassException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            UndefinedPrimaryKeyException, UndefinedTableAnnotationException, InvalidForeignKeyTarget {
+        int votes = 0;
+        for (Vote vote : db.get_relationships(this, Vote.class, "getDepute")) {
+            votes = votes + vote.getNb_vote();
+        }
+        return votes;
+    }
+
     @Override
     public String toString() {
         return String.format("%d - %s", this.getId(), this.getNom());

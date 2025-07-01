@@ -65,7 +65,7 @@ public class Affichage3 extends JPanel {
     public Affichage3(AppContext context) {
         super();
         this.setContext(context);
-        this.setDeputeTable(new DeputeTable());
+        this.setDeputeTable(new DeputeTable(context));
         this.setDSelector(new DSelector(context));
         try {
             this.getDeputeTable().setDeputes(context.getDb().select(Depute.class));
