@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import mg.dirk.vote_system.AppContext;
 import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.NoRowsException;
 import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
 import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
@@ -17,6 +18,9 @@ import mg.dirk.vote_system.database.tables.District;
 import mg.dirk.vote_system.database.tables.Faritany;
 import mg.dirk.vote_system.database.tables.Faritra;
 import mg.dirk.vote_system.ui.MessageBox;
+import mg.dirk.vote_system.ui.helpers.tous.TousDistrict;
+import mg.dirk.vote_system.ui.helpers.tous.TousFaritany;
+import mg.dirk.vote_system.ui.helpers.tous.TousFaritra;
 import mg.dirk.vote_system.ui.selections.a_selector.DistrictCombobox;
 import mg.dirk.vote_system.ui.selections.a_selector.FaritanyCombobox;
 import mg.dirk.vote_system.ui.selections.a_selector.FaritraCombobox;
@@ -30,6 +34,16 @@ public class ASelector extends JPanel {
     private FaritanyCombobox faritanyCombobox;
     private FaritraCombobox faritraCombobox;
     private DistrictCombobox districtCombobox;
+
+    private boolean includeTous;
+
+    public boolean getIncludeTous() {
+        return includeTous;
+    }
+
+    public void setIncludeTous(boolean includeTous) {
+        this.includeTous = includeTous;
+    }
 
     public DistrictCombobox getDistrictCombobox() {
         return districtCombobox;
@@ -65,31 +79,55 @@ public class ASelector extends JPanel {
         } else if (this.selectedFaritany != selectedFaritany && selectedFaritany != null
                 && this.getFaritanyCombobox() != null) {
             System.out.println(selectedFaritany);
-            this.selectedFaritany = selectedFaritany;
+            boolean isTousFaritany = selectedFaritany instanceof TousFaritany;
+            if (isTousFaritany) {
+                this.selectedFaritany = null;
+            } else {
+                this.selectedFaritany = selectedFaritany;
+            }
+
             boolean isInitiallyLocked = this.isLocked();
             if (!isInitiallyLocked) {
                 this.lock();
             }
             try {
-                List<Faritra> faritras = this.getAppContext().getDb().get_relationships(this.getSelectedFaritany(),
-                        Faritra.class, "getFaritany");
+
+                List<Faritra> faritras;
+                if (isTousFaritany) {
+                    faritras = this.getAppContext().getDb().select(Faritra.class);
+                } else {
+                    faritras = this.getAppContext().getDb().get_relationships(this.getSelectedFaritany(),
+                            Faritra.class, "getFaritany");
+                }
 
                 // if (!faritras.contains(this.getFaritraCombobox().getSelectedItem())) {
                 this.getFaritraCombobox().removeAllItems();
+                if (this.includeTous) {
+                    this.getFaritraCombobox().addItem(new TousFaritra());
+                }
                 this.getFaritraCombobox().addItems(faritras);
                 // }
 
-                List<District> districts = this.getAppContext().getDb().get_relationships(
-                        faritras.toArray(new Faritra[faritras.size()]),
-                        District.class, "getFaritra");
+                List<District> districts;
+                if (isTousFaritany) {
+                    districts = this.getAppContext().getDb().select(District.class);
+                } else {
 
+                    districts = this.getAppContext().getDb().get_relationships(
+                            faritras.toArray(new Faritra[faritras.size()]),
+                            District.class, "getFaritra");
+                }
                 // if (!districts.contains(this.getDistrictCombobox().getSelectedItem())) {
                 this.getDistrictCombobox().removeAllItems();
+                if (this.includeTous) {
+                    this.getDistrictCombobox().addItem(new TousDistrict());
+                }
                 this.getDistrictCombobox().addItems(districts);
                 // }
 
             } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
-                    | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget e) {
+                    | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
+                    | NoRowsException e) {
                 this.resetSelections();
                 e.printStackTrace();
                 MessageBox.error(e);
@@ -145,34 +183,50 @@ public class ASelector extends JPanel {
         } else if (this.selectedFaritra != selectedFaritra && selectedFaritra != null
                 && this.getFaritraCombobox() != null) {
             System.out.println(selectedFaritra);
-            this.selectedFaritra = selectedFaritra;
+            boolean isTousFaritra = selectedFaritra instanceof TousFaritra;
+            if (isTousFaritra) {
+                this.selectedFaritra = null;
+            } else {
+                this.selectedFaritra = selectedFaritra;
+            }
+
             boolean isInitiallyLocked = this.isLocked();
             if (!isInitiallyLocked) {
                 this.lock();
             }
 
             try {
-                Faritany faritany = this.getAppContext().getDb().get_reference(selectedFaritra, Faritany.class,
-                        "getFaritany");
+                if (!isTousFaritra) {
+                    Faritany faritany = this.getAppContext().getDb().get_reference(selectedFaritra, Faritany.class,
+                            "getFaritany");
 
-                this.setSelectedFaritany(faritany);
-                if (this.getFaritanyCombobox() != null) {
-                    this.getFaritanyCombobox().setSelectedItem(faritany);
+                    this.setSelectedFaritany(faritany);
+                    if (this.getFaritanyCombobox() != null) {
+                        this.getFaritanyCombobox().setSelectedItem(faritany);
+                    }
                 }
 
-                List<District> districts = this.getAppContext().getDb().get_relationships(
-                        selectedFaritra,
-                        District.class, "getFaritra");
+                List<District> districts;
+                if (isTousFaritra) {
+                    districts = this.getAppContext().getDb().select(District.class);
+                } else {
+                    districts = this.getAppContext().getDb().get_relationships(
+                            selectedFaritra,
+                            District.class, "getFaritra");
+                }
 
                 // if (!districts.contains(this.getDistrictCombobox().getSelectedItem())) {
                 this.getDistrictCombobox().removeAllItems();
+                if (this.getIncludeTous()) {
+                    this.getDistrictCombobox().addItem(new TousDistrict());
+                }
                 this.getDistrictCombobox().addItems(districts);
                 // }
 
                 this.getFaritraCombobox().setSelectedItem(selectedFaritra);
             } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
                     | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
-                    | ReferredValueNotFoundException e) {
+                    | ReferredValueNotFoundException | NoRowsException e) {
                 this.resetSelections();
                 e.printStackTrace();
                 MessageBox.error(e);

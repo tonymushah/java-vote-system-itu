@@ -59,6 +59,7 @@ public class Affichage3 extends JPanel {
         }
         // table.setLayout(new BoxLayout(table, BoxLayout.X_AXIS));
         this.add(table);
+
     }
 
     public Affichage3(AppContext context) {

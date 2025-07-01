@@ -41,7 +41,6 @@ public class FaritanyCombobox extends JComboBox<Faritany> {
     }
 
     public void setAllItems() {
-        this.removeAllItems();
         DirkDB db = this.getSelector().getAppContext().getDb();
         try {
             this.addItems(db.select(Faritany.class));

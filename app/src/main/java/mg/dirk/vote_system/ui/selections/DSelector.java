@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import mg.dirk.vote_system.AppContext;
 import mg.dirk.vote_system.database.tables.BureauDeVote;
 import mg.dirk.vote_system.database.exceptions.InvalidForeignKeyTarget;
+import mg.dirk.vote_system.database.exceptions.NoRowsException;
 import mg.dirk.vote_system.database.exceptions.ReferredValueNotFoundException;
 import mg.dirk.vote_system.database.exceptions.UndefinedPrimaryKeyException;
 import mg.dirk.vote_system.database.exceptions.UndefinedTableAnnotationException;
@@ -17,7 +18,14 @@ import mg.dirk.vote_system.database.tables.District;
 import mg.dirk.vote_system.database.tables.Faritany;
 import mg.dirk.vote_system.database.tables.Faritra;
 import mg.dirk.vote_system.ui.MessageBox;
+import mg.dirk.vote_system.ui.helpers.tous.TousBureauDeVote;
+import mg.dirk.vote_system.ui.helpers.tous.TousFaritany;
+import mg.dirk.vote_system.ui.helpers.tous.TousFaritra;
 import mg.dirk.vote_system.ui.selections.c_selector.BureauDeVoteCombobox;
+import mg.dirk.vote_system.ui.selections.d_selector.DBureauDeVoteCombobox;
+import mg.dirk.vote_system.ui.selections.d_selector.DDistrictCombobox;
+import mg.dirk.vote_system.ui.selections.d_selector.DFaritanyCombobox;
+import mg.dirk.vote_system.ui.selections.d_selector.DFaritraCombobx;
 
 public class DSelector extends ASelector {
     private BureauDeVote selectedBureauDeVote;
@@ -36,22 +44,31 @@ public class DSelector extends ASelector {
             return;
         }
         try {
-            List<BureauDeVote> bureaux = this.getAppContext().getDb().get_relationships(
-                    this.getAppContext().getDb()
-                            .get_relationships(this.getAppContext().getDb().get_relationships(selectedFaritany,
-                                    Faritra.class, "getFaritany"),
-                                    District.class, "getFaritra"),
-                    BureauDeVote.class,
-                    "getDistrict");
+            List<BureauDeVote> bureaux;
+            if (selectedFaritany instanceof TousFaritany) {
+                bureaux = this.getAppContext().getDb().select(BureauDeVote.class);
+            } else {
+                bureaux = this.getAppContext().getDb().get_relationships(
+                        this.getAppContext().getDb()
+                                .get_relationships(this.getAppContext().getDb().get_relationships(selectedFaritany,
+                                        Faritra.class, "getFaritany"),
+                                        District.class, "getFaritra"),
+                        BureauDeVote.class,
+                        "getDistrict");
+            }
 
             this.getBureauDeVoteCombobox().removeAllItems();
+            if (selectedFaritany instanceof TousFaritany) {
+                this.getBureauDeVoteCombobox().addItem(new TousBureauDeVote());
+            }
             this.getBureauDeVoteCombobox().addItems(bureaux);
 
             this.setSelectedFaritra(null);
             this.setSelectedDistrict(null);
             this.setSelectedBureauDeVote(null);
         } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
-                | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget e) {
+                | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
+                | NoRowsException e) {
             this.resetSelections();
             e.printStackTrace();
             MessageBox.error(e);
@@ -75,19 +92,27 @@ public class DSelector extends ASelector {
             return;
         }
         try {
-            List<BureauDeVote> bureaux = this.getAppContext().getDb().get_relationships(
-                    this.getAppContext().getDb()
-                            .get_relationships(selectedFaritra, District.class, "getFaritra"),
-                    BureauDeVote.class,
-                    "getDistrict");
-
+            List<BureauDeVote> bureaux;
+            if (selectedFaritra instanceof TousFaritra) {
+                bureaux = this.getAppContext().getDb().select(BureauDeVote.class);
+            } else {
+                bureaux = this.getAppContext().getDb().get_relationships(
+                        this.getAppContext().getDb()
+                                .get_relationships(selectedFaritra, District.class, "getFaritra"),
+                        BureauDeVote.class,
+                        "getDistrict");
+            }
             this.getBureauDeVoteCombobox().removeAllItems();
+            if (selectedFaritra instanceof TousFaritra) {
+                this.getBureauDeVoteCombobox().addItem(new TousBureauDeVote());
+            }
             this.getBureauDeVoteCombobox().addItems(bureaux);
 
             this.setSelectedDistrict(null);
             this.setSelectedBureauDeVote(null);
         } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
-                | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget e) {
+                | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
+                | NoRowsException e) {
             this.resetSelections();
             e.printStackTrace();
             MessageBox.error(e);
@@ -111,15 +136,25 @@ public class DSelector extends ASelector {
             return;
         }
         try {
-            List<BureauDeVote> bureaux = this.getAppContext().getDb().get_relationships(selectedDistrict,
-                    BureauDeVote.class,
-                    "getDistrict");
+            List<BureauDeVote> bureaux;
+            if (selectedDistrict instanceof District) {
+                bureaux = this.getAppContext().getDb().select(BureauDeVote.class);
+            } else {
+                bureaux = this.getAppContext().getDb().get_relationships(selectedDistrict,
+                        BureauDeVote.class,
+                        "getDistrict");
+            }
 
             this.getBureauDeVoteCombobox().removeAllItems();
+            if (selectedDistrict instanceof District) {
+                this.getBureauDeVoteCombobox().addItem(new TousBureauDeVote());
+            }
             this.getBureauDeVoteCombobox().addItems(bureaux);
+
             this.setSelectedBureauDeVote(null);
         } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
-                | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget e) {
+                | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
+                | NoRowsException e) {
             this.resetSelections();
             e.printStackTrace();
             MessageBox.error(e);
@@ -135,17 +170,25 @@ public class DSelector extends ASelector {
         } else if (this.selectedBureauDeVote != selectedBureauDeVote && selectedBureauDeVote != null
                 && this.getBureauDeVoteCombobox() != null) {
             System.out.println(selectedBureauDeVote);
-            this.selectedBureauDeVote = selectedBureauDeVote;
+            boolean isTousBureauDeVote = selectedBureauDeVote instanceof TousBureauDeVote;
+            if (isTousBureauDeVote) {
+                this.selectedBureauDeVote = null;
+            } else {
+                this.selectedBureauDeVote = selectedBureauDeVote;
+            }
+
             boolean isInitiallyLocked = this.isLocked();
             if (!isInitiallyLocked) {
                 this.lock();
             }
             try {
-                District district = this.getAppContext().getDb().get_reference(selectedBureauDeVote, District.class,
-                        "getDistrict");
-                this.setSelectedDistrict(district);
+                if (!isTousBureauDeVote) {
+                    District district = this.getAppContext().getDb().get_reference(selectedBureauDeVote, District.class,
+                            "getDistrict");
+                    this.setSelectedDistrict(district);
 
-                this.getBureauDeVoteCombobox().setSelectedItem(selectedBureauDeVote);
+                    this.getBureauDeVoteCombobox().setSelectedItem(selectedBureauDeVote);
+                }
             } catch (InvalidClassException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
                     | UndefinedPrimaryKeyException | UndefinedTableAnnotationException | InvalidForeignKeyTarget
                     | ReferredValueNotFoundException e) {
@@ -175,8 +218,11 @@ public class DSelector extends ASelector {
 
     @Override
     public void initComboboxes() {
-        super.initComboboxes();
-        this.setBureauDeVoteCombobox(new BureauDeVoteCombobox(this));
+        this.setIncludeTous(true);
+        this.setFaritanyCombobox(new DFaritanyCombobox(this));
+        this.setFaritraCombobox(new DFaritraCombobx(this));
+        this.setDistrictCombobox(new DDistrictCombobox(this));
+        this.setBureauDeVoteCombobox(new DBureauDeVoteCombobox(this));
     }
 
     @Override
