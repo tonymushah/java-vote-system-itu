@@ -58,7 +58,7 @@ public class DSelector extends ASelector {
             }
 
             this.getBureauDeVoteCombobox().removeAllItems();
-            if (selectedFaritany instanceof TousFaritany) {
+            if (this.getIncludeTous()) {
                 this.getBureauDeVoteCombobox().addItem(new TousBureauDeVote());
             }
             this.getBureauDeVoteCombobox().addItems(bureaux);
@@ -103,7 +103,7 @@ public class DSelector extends ASelector {
                         "getDistrict");
             }
             this.getBureauDeVoteCombobox().removeAllItems();
-            if (selectedFaritra instanceof TousFaritra) {
+            if (this.getIncludeTous()) {
                 this.getBureauDeVoteCombobox().addItem(new TousBureauDeVote());
             }
             this.getBureauDeVoteCombobox().addItems(bureaux);
@@ -146,7 +146,7 @@ public class DSelector extends ASelector {
             }
 
             this.getBureauDeVoteCombobox().removeAllItems();
-            if (selectedDistrict instanceof District) {
+            if (this.getIncludeTous()) {
                 this.getBureauDeVoteCombobox().addItem(new TousBureauDeVote());
             }
             this.getBureauDeVoteCombobox().addItems(bureaux);
@@ -165,8 +165,15 @@ public class DSelector extends ASelector {
     }
 
     public void setSelectedBureauDeVote(BureauDeVote selectedBureauDeVote) {
+        boolean isInitiallyLocked = this.isLocked();
+        if (!isInitiallyLocked) {
+            this.lock();
+        }
         if (selectedBureauDeVote == null) {
             this.selectedBureauDeVote = null;
+            if (this.getIncludeTous() && this.getBureauDeVoteCombobox() != null) {
+                this.getBureauDeVoteCombobox().setSelectedItem(new TousBureauDeVote());
+            }
         } else if (this.selectedBureauDeVote != selectedBureauDeVote && selectedBureauDeVote != null
                 && this.getBureauDeVoteCombobox() != null) {
             System.out.println(selectedBureauDeVote);
@@ -177,10 +184,6 @@ public class DSelector extends ASelector {
                 this.selectedBureauDeVote = selectedBureauDeVote;
             }
 
-            boolean isInitiallyLocked = this.isLocked();
-            if (!isInitiallyLocked) {
-                this.lock();
-            }
             try {
                 if (!isTousBureauDeVote) {
                     District district = this.getAppContext().getDb().get_reference(selectedBureauDeVote, District.class,
@@ -196,9 +199,10 @@ public class DSelector extends ASelector {
                 e.printStackTrace();
                 MessageBox.error(e);
             }
-            if (!isInitiallyLocked) {
-                this.unlock();
-            }
+
+        }
+        if (!isInitiallyLocked) {
+            this.unlock();
         }
     }
 

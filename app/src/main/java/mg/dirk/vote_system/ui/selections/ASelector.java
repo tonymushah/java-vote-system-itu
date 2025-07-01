@@ -74,8 +74,15 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedFaritany(Faritany selectedFaritany) {
+        boolean isInitiallyLocked = this.isLocked();
+        if (!isInitiallyLocked) {
+            this.lock();
+        }
         if (selectedFaritany == null) {
             this.selectedFaritany = null;
+            if (this.getIncludeTous() && this.getFaritanyCombobox() != null) {
+                this.getFaritanyCombobox().setSelectedItem(new TousFaritany());
+            }
         } else if (this.selectedFaritany != selectedFaritany && selectedFaritany != null
                 && this.getFaritanyCombobox() != null) {
             System.out.println(selectedFaritany);
@@ -86,10 +93,6 @@ public class ASelector extends JPanel {
                 this.selectedFaritany = selectedFaritany;
             }
 
-            boolean isInitiallyLocked = this.isLocked();
-            if (!isInitiallyLocked) {
-                this.lock();
-            }
             try {
 
                 List<Faritra> faritras;
@@ -132,9 +135,10 @@ public class ASelector extends JPanel {
                 e.printStackTrace();
                 MessageBox.error(e);
             }
-            if (!isInitiallyLocked) {
-                this.unlock();
-            }
+
+        }
+        if (!isInitiallyLocked) {
+            this.unlock();
         }
     }
 
@@ -177,9 +181,16 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedFaritra(Faritra selectedFaritra) {
+        boolean isInitiallyLocked = this.isLocked();
+        if (!isInitiallyLocked) {
+            this.lock();
+        }
         System.out.println(selectedFaritra);
         if (selectedFaritra == null) {
             this.selectedFaritra = null;
+            if (this.getIncludeTous() && this.getFaritraCombobox() != null) {
+                this.getFaritraCombobox().setSelectedItem(new TousFaritra());
+            }
         } else if (this.selectedFaritra != selectedFaritra && selectedFaritra != null
                 && this.getFaritraCombobox() != null) {
             System.out.println(selectedFaritra);
@@ -188,11 +199,6 @@ public class ASelector extends JPanel {
                 this.selectedFaritra = null;
             } else {
                 this.selectedFaritra = selectedFaritra;
-            }
-
-            boolean isInitiallyLocked = this.isLocked();
-            if (!isInitiallyLocked) {
-                this.lock();
             }
 
             try {
@@ -231,9 +237,10 @@ public class ASelector extends JPanel {
                 e.printStackTrace();
                 MessageBox.error(e);
             }
-            if (!isInitiallyLocked) {
-                this.unlock();
-            }
+
+        }
+        if (!isInitiallyLocked) {
+            this.unlock();
         }
     }
 
@@ -242,16 +249,20 @@ public class ASelector extends JPanel {
     }
 
     public void setSelectedDistrict(District selectedDistrict) {
+        boolean isInitiallyLocked = this.isLocked();
+        if (!isInitiallyLocked) {
+            this.lock();
+        }
         if (selectedDistrict == null) {
             this.selectedDistrict = null;
+            if (this.getIncludeTous() && this.getDistrictCombobox() != null) {
+                this.getDistrictCombobox().setSelectedItem(new TousDistrict());
+            }
         } else if (this.selectedDistrict != selectedDistrict && selectedDistrict != null
                 && this.getDistrictCombobox() != null) {
             System.out.println(selectedDistrict);
             this.selectedDistrict = selectedDistrict;
-            boolean isInitiallyLocked = this.isLocked();
-            if (!isInitiallyLocked) {
-                this.lock();
-            }
+
             try {
                 Faritra faritra = this.getAppContext().getDb().get_reference(selectedDistrict, Faritra.class,
                         "getFaritra");
@@ -265,9 +276,10 @@ public class ASelector extends JPanel {
                 e.printStackTrace();
                 MessageBox.error(e);
             }
-            if (!isInitiallyLocked) {
-                this.unlock();
-            }
+
+        }
+        if (!isInitiallyLocked) {
+            this.unlock();
         }
     }
 
